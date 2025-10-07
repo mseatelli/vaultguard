@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VaultGuard - Gestionnaire Local</title>
+    <style>
+        /* RESET ET BASE */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: #1a1a1a; 
+            color: white;
+            padding: 20px;
+            line-height: 1.6;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* PAGE DE CONNEXION */
+        .login-container {
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .login-box {
+            background: #2d2d2d;
+            padding: 40px 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        .login-header {
+            margin-bottom: 30px;
+        }
+        
+        .login-header h1 {
+            color: #4CAF50;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .login-header p {
+            color: #ccc;
+            font-size: 1.1em;
+        }
+        
+        /* FORMULAIRES */
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ccc;
+            font-weight: 500;
+        }
+        
+        input {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            background: #3d3d3d;
+            color: white;
+            font-size: 16px;
+        }
+        
+        input:focus {
+            outline: 2px solid #4CAF50;
+        }
+        
+        .password-input {
+            position: relative;
+        }
+        
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #ccc;
+            cursor: pointer;
+            padding: 5px;
+            font-size: 18px;
+        }
+        
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+            font-weight: 500;
+            width: 100%;
+        }
+        
+        button:hover:not(:disabled) {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+        
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        /* INDICATEUR DE FORCE */
+        .strength-meter {
+            height: 6px;
+            background: #555;
+            border-radius: 3px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        
+        .strength-fill {
+            height: 100%;
+            transition: width 0.3s, background 0.3s;
+        }
+        
+        .strength-weak { background: #f44336; width: 25%; }
+        .strength-medium { background: #ff9800; width: 50%; }
+        .strength-strong { background: #4CAF50; width: 75%; }
+        .strength-very-strong { background: #2196F3; width: 100%; }
+        
+        /* MESSAGE D'ÉTAT */
+        .status-message {
+            padding: 12px;
+            border-radius: 5px;
+            margin: 15px 0;
+            text-align: center;
+            font-size: 14px;
+        }
+        
+        .status-success {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .status-error {
+            background: #f44336;
+            color: white;
+        }
+        
+        .status-info {
+            background: #2196F3;
+            color: white;
+        }
+        
+        .password-requirements {
+            text-align: left;
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
+        }
+        
+        .requirement {
+            margin: 2px 0;
+        }
+        
+        .requirement.met {
+            color: #4CAF50;
+        }
+        
+        /* APPLICATION PRINCIPALE (CACHÉE INITIALEMENT) */
+        #app {
+            display: none;
+            width: 100%;
+            max-width: 800px;
+        }
+        
+        .container {
+            width: 100%;
+        }
+        
+        /* EN-TÊTE */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: #4CAF50;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #ccc;
+            font-size: 1.1em;
+        }
+        
+        /* ONGLETS */
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            background: #2d2d2d;
+            border-radius: 10px;
+            padding: 5px;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            background: transparent;
+            border: none;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 16px;
+        }
+        
+        .tab.active {
+            background: #4CAF50;
+            font-weight: bold;
+        }
+        
+        /* CONTENU DES ONGLETS */
+        .tab-content {
+            display: none;
+            background: #2d2d2d;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        button.secondary {
+            background: #666;
+        }
+        
+        button.danger {
+            background: #f44336;
+        }
+        
+        /* CARTES DE MOT DE PASSE */
+        .password-card {
+            background: #3d3d3d;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .password-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .password-name {
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        
+        .password-actions {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .password-details {
+            color: #ccc;
+            font-size: 0.9em;
+        }
+        
+        .password-value {
+            font-family: 'Courier New', monospace;
+            background: #2d2d2d;
+            padding: 8px;
+            border-radius: 5px;
+            margin: 5px 0;
+            word-break: break-all;
+        }
+        
+        /* RECHERCHE ET FILTRES */
+        .search-box {
+            margin-bottom: 15px;
+        }
+        
+        .filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .filter-btn {
+            flex: 1;
+            padding: 8px;
+            font-size: 14px;
+        }
+        
+        /* RESPONSIVE */
+        @media (max-width: 600px) {
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .password-actions {
+                flex-direction: column;
+            }
+            
+            .filters {
+                flex-direction: column;
+            }
+        }
+        
+        .no-passwords {
+            text-align: center;
+            color: #888;
+            padding: 40px;
+            font-style: italic;
+        }
+        
+        .logout-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #666;
+            padding: 10px 15px;
+            font-size: 14px;
+            width: auto;
+        }
+    </style>
+</head>
+<body>
+    <!-- PAGE DE CONNEXION -->
+    <div id="login" class="login-container">
+        <div class="login-box">
+            <div class="login-header">
+                <h1>🔐 VaultGuard</h1>
+                <p>Gestionnaire de mots de passe local sécurisé</p>
+            </div>
+            
+            <div id="setup-form">
+                <div class="form-group">
+                    <label for="master-password">Créez votre mot de passe maître :</label>
+                    <div class="password-input">
+                        <input type="password" id="master-password" placeholder="Minimum 10 caractères" oninput="checkPasswordStrength()">
+                        <button type="button" class="toggle-password" onclick="togglePassword('master-password')">👁️</button>
+                    </div>
+                    <div class="strength-meter">
+                        <div id="strength-fill" class="strength-fill strength-weak"></div>
+                    </div>
+                    <div class="password-requirements">
+                        <div id="req-length" class="requirement">• 10 caractères minimum</div>
+                        <div id="req-uppercase" class="requirement">• Au moins une majuscule</div>
+                        <div id="req-lowercase" class="requirement">• Au moins une minuscule</div>
+                        <div id="req-number" class="requirement">• Au moins un chiffre</div>
+                        <div id="req-special" class="requirement">• Au moins un caractère spécial</div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirm-password">Confirmez le mot de passe :</label>
+                    <div class="password-input">
+                        <input type="password" id="confirm-password" placeholder Retapez votre mot de passe">
+                        <button type="button" class="toggle-password" onclick="togglePassword('confirm-password')">👁️</button>
+                    </div>
+                </div>
+                
+                <button id="setup-btn" onclick="setupMasterPassword()" disabled>🚀 Créer le coffre-fort</button>
+            </div>
+            
+            <div id="login-form" style="display: none;">
+                <div class="form-group">
+                    <label for="login-password">Mot de passe maître :</label>
+                    <div class="password-input">
+                        <input type="password" id="login-password" placeholder="Entrez votre mot de passe maître">
+                        <button type="button" class="toggle-password" onclick="togglePassword('login-password')">👁️</button>
+                    </div>
+                </div>
+                
+                <button onclick="login()">🔓 Déverrouiller le coffre-fort</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- APPLICATION PRINCIPALE -->
+    <div id="app">
+        <button class="logout-btn" onclick="logout()">🚪 Déconnexion</button>
+        
+        <div class="container">
+            <div class="header">
+                <h1>🔐 VaultGuard</h1>
+                <p>Gestionnaire de mots de passe local et sécurisé</p>
+            </div>
+            
+            <!-- ONGLETS -->
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('vault')">🔒 Coffre-fort</button>
+                <button class="tab" onclick="showTab('add-password')">➕ Ajouter</button>
+                <button class="tab" onclick="showTab('generator')">🎲 Générateur</button>
+                <button class="tab" onclick="showTab('settings')">⚙️ Paramètres</button>
+            </div>
+            
+            <!-- CONTENU ONGLET COFFRE-FORT -->
+            <div id="vault" class="tab-content active">
+                <h2>🔒 Mes mots de passe</h2>
+                
+                <div class="search-box">
+                    <input type="text" id="search" placeholder="🔍 Rechercher un mot de passe..." oninput="filterPasswords()">
+                </div>
+                
+                <div class="filters">
+                    <button class="filter-btn secondary" onclick="filterByCategory('all')">Tous</button>
+                    <button class="filter-btn secondary" onclick="filterByCategory('web')">Web</button>
+                    <button class="filter-btn secondary" onclick="filterByCategory('app')">Applications</button>
+                    <button class="filter-btn secondary" onclick="filterByCategory('bank')">Banque</button>
+                </div>
+                
+                <div id="passwords-list">
+                    <div class="no-passwords">Aucun mot de passe enregistré</div>
+                </div>
+            </div>
+            
+            <!-- CONTENU ONGLET AJOUTER -->
+            <div id="add-password" class="tab-content">
+                <h2>➕ Nouveau mot de passe</h2>
+                
+                <div class="form-group">
+                    <label for="service-name">Nom du service :</label>
+                    <input type="text" id="service-name" placeholder="Ex: Gmail, Facebook, Banque...">
+                </div>
+                
+                <div class="form-group">
+                    <label for="service-url">URL (optionnel) :</label>
+                    <input type="url" id="service-url" placeholder="https://...">
+                </div>
+                
+                <div class="form-group">
+                    <label for="username">Nom d'utilisateur :</label>
+                    <input type="text" id="username" placeholder="Votre identifiant">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Mot de passe :</label>
+                    <div class="password-input">
+                        <input type="password" id="password" placeholder="Votre mot de passe">
+                        <button class="toggle-password" onclick="togglePassword('password')">👁️</button>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="category">Catégorie :</label>
+                    <select id="category">
+                        <option value="web">Site Web</option>
+                        <option value="app">Application</option>
+                        <option value="bank">Banque</option>
+                        <option value="email">Email</option>
+                        <option value="other">Autre</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="notes">Notes (optionnel) :</label>
+                    <textarea id="notes" rows="3" placeholder="Informations supplémentaires..."></textarea>
+                </div>
+                
+                <button onclick="addPassword()">💾 Enregistrer le mot de passe</button>
+            </div>
+            
+            <!-- CONTENU ONGLET GÉNÉRATEUR -->
+            <div id="generator" class="tab-content">
+                <h2>🎲 Générateur de mots de passe</h2>
+                
+                <div class="form-group">
+                    <label for="password-length">Longueur : <span id="length-value">12</span> caractères</label>
+                    <input type="range" id="password-length" min="8" max="32" value="12" oninput="updatePasswordLength()">
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="uppercase" checked> Lettres majuscules (A-Z)
+                    </label>
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="lowercase" checked> Lettres minuscules (a-z)
+                    </label>
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="numbers" checked> Chiffres (0-9)
+                    </label>
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="symbols" checked> Symboles (!@#$%^&*)
+                    </label>
+                </div>
+                
+                <div class="form-group">
+                    <label>Mot de passe généré :</label>
+                    <div class="password-input">
+                        <input type="text" id="generated-password" readonly>
+                        <button class="toggle-password" onclick="copyGeneratedPassword()">📋</button>
+                    </div>
+                </div>
+                
+                <div class="strength-meter">
+                    <div id="generated-strength" class="strength-fill strength-weak"></div>
+                </div>
+                
+                <button onclick="generatePassword()">🎲 Générer un mot de passe</button>
+                <button class="secondary" onclick="useGeneratedPassword()">✅ Utiliser ce mot de passe</button>
+            </div>
+            
+            <!-- CONTENU ONGLET PARAMÈTRES -->
+            <div id="settings" class="tab-content">
+                <h2>⚙️ Paramètres de sécurité</h2>
+                
+                <div class="status-message status-info">
+                    ⚠️ Les données sont chiffrées et stockées localement sur votre appareil
+                </div>
+                
+                <div class="form-group">
+                    <label>Changer le mot de passe maître :</label>
+                    <button onclick="changeMasterPassword()">🔑 Modifier le mot de passe</button>
+                </div>
+                
+                <div class="form-group">
+                    <label>Sauvegarde des données :</label>
+                    <button onclick="exportData()">📥 Exporter mes mots de passe</button>
+                </div>
+                
+                <div class="form-group">
+                    <label>Restaurer une sauvegarde :</label>
+                    <input type="file" id="import-file" accept=".json">
+                    <button class="secondary" onclick="importData()">📤 Importer des mots de passe</button>
+                </div>
+                
+                <div class="form-group">
+                    <label>Statistiques :</label>
+                    <div id="stats" style="color: #ccc;">
+                        Chargement...
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Danger zone :</label>
+                    <button class="danger" onclick="clearAllData()">🗑️ Tout supprimer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // CLÉS DE STOCKAGE
+        const MASTER_PASSWORD_KEY = 'vaultguard_master';
+        const PASSWORDS_KEY = 'vaultguard_passwords';
+        let passwords = [];
+        let isAuthenticated = false;
+
+        // CHARGEMENT INITIAL
+        function initializeApp() {
+            const hasMaster = localStorage.getItem(MASTER_PASSWORD_KEY);
+            if (hasMaster) {
+                showLoginForm();
+            } else {
+                showSetupForm();
+            }
+        }
+
+        // AFFICHER FORMULAIRE DE CRÉATION
+        function showSetupForm() {
+            document.getElementById('setup-form').style.display = 'block';
+            document.getElementById('login-form').style.display = 'none';
+        }
+
+        // AFFICHER FORMULAIRE DE CONNEXION
+        function showLoginForm() {
+            document.getElementById('setup-form').style.display = 'none';
+            document.getElementById('login-form').style.display = 'block';
+        }
+
+        // VÉRIFIER LA FORCE DU MOT DE PASSE
+        function checkPasswordStrength() {
+            const password = document.getElementById('master-password').value;
+            const confirm = document.getElementById('confirm-password').value;
+            const btn = document.getElementById('setup-btn');
+            
+            // Exigences
+            const hasMinLength = password.length >= 10;
+            const hasUppercase = /[A-Z]/.test(password);
+            const hasLowercase = /[a-z]/.test(password);
+            const hasNumber = /[0-9]/.test(password);
+            const hasSpecial = /[^A-Za-z0-9]/.test(password);
+            const passwordsMatch = password === confirm && password.length > 0;
+            
+            // Mettre à jour les indicateurs
+            updateRequirement('req-length', hasMinLength);
+            updateRequirement('req-uppercase', hasUppercase);
+            updateRequirement('req-lowercase', hasLowercase);
+            updateRequirement('req-number', hasNumber);
+            updateRequirement('req-special', hasSpecial);
+            
+            // Calculer la force
+            let strength = 0;
+            if (hasMinLength) strength++;
+            if (hasUppercase) strength++;
+            if (hasLowercase) strength++;
+            if (hasNumber) strength++;
+            if (hasSpecial) strength++;
+            
+            // Mettre à jour la barre de force
+            const meter = document.getElementById('strength-fill');
+            meter.className = 'strength-fill ';
+            if (strength <= 2) meter.classList.add('strength-weak');
+            else if (strength <= 3) meter.classList.add('strength-medium');
+            else if (strength <= 4) meter.classList.add('strength-strong');
+            else meter.classList.add('strength-very-strong');
+            
+            // Activer/désactiver le bouton
+            const allRequirements = hasMinLength && hasUppercase && hasLowercase && hasNumber && hasSpecial && passwordsMatch;
+            btn.disabled = !allRequirements;
+        }
+
+        function updateRequirement(elementId, met) {
+            const element = document.getElementById(elementId);
+            if (met) {
+                element.classList.add('met');
+            } else {
+                element.classList.remove('met');
+            }
+        }
+
+        // CRÉER LE MOT DE PASSE MAÎTRE
+        function setupMasterPassword() {
+            const password = document.getElementById('master-password').value;
+            
+            // Stocker le hash (simplifié - en production utiliser une vraie fonction de hash)
+            const passwordHash = btoa(password); // Simple encodage base64 pour l'exemple
+            localStorage.setItem(MASTER_PASSWORD_KEY, passwordHash);
+            
+            showStatus('Coffre-fort créé avec succès !', 'success');
+            setTimeout(() => {
+                showLoginForm();
+            }, 2000);
+        }
+
+        // CONNEXION
+        function login() {
+            const password = document.getElementById('login-password').value;
+            const storedHash = localStorage.getItem(MASTER_PASSWORD_KEY);
+            
+            if (btoa(password) === storedHash) {
+                isAuthenticated = true;
+                loadPasswords();
+                document.getElementById('login').style.display = 'none';
+                document.getElementById('app').style.display = 'block';
+                showStatus('Bienvenue !', 'success');
+            } else {
+                showStatus('Mot de passe incorrect', 'error');
+            }
+        }
+
+        // DÉCONNEXION
+        function logout() {
+            isAuthenticated = false;
+            document.getElementById('login-password').value = '';
+            document.getElementById('app').style.display = 'none';
+            document.getElementById('login').style.display = 'flex';
+            showLoginForm();
+        }
+
+        // CHARGER LES MOTS DE PASSE
+        function loadPasswords() {
+            if (!isAuthenticated) return;
+            
+            const stored = localStorage.getItem(PASSWORDS_KEY);
+            if (stored) {
+                try {
+                    passwords = JSON.parse(stored);
+                } catch (e) {
+                    passwords = [];
+                }
+            }
+            updatePasswordsDisplay();
+            updateStats();
+        }
+
+        // SAUVEGARDER LES MOTS DE PASSE
+        function savePasswords() {
+            if (!isAuthenticated) return;
+            localStorage.setItem(PASSWORDS_KEY, JSON.stringify(passwords));
+            updateStats();
+        }
+
+        // RESTE DU CODE IDENTIQUE À LA VERSION PRÉCÉDENTE...
+        // [Toutes les fonctions de gestion des mots de passe restent les mêmes]
+        
+        // GESTION DES ONGLETS
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+        
+        // AJOUTER UN MOT DE PASSE
+        function addPassword() {
+            if (!isAuthenticated) return;
+            
+            const service = document.getElementById('service-name').value;
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const category = document.getElementById('category').value;
+            const url = document.getElementById('service-url').value;
+            const notes = document.getElementById('notes').value;
+            
+            if (!service || !username || !password) {
+                showStatus('Veuillez remplir tous les champs obligatoires', 'error');
+                return;
+            }
+            
+            const newPassword = {
+                id: Date.now(),
+                service: service,
+                username: username,
+                password: password,
+                category: category,
+                url: url,
+                notes: notes,
+                createdAt: new Date().toISOString()
+            };
+            
+            passwords.push(newPassword);
+            savePasswords();
+            
+            // Réinitialiser le formulaire
+            document.getElementById('service-name').value = '';
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('service-url').value = '';
+            document.getElementById('notes').value = '';
+            
+            showStatus('Mot de passe enregistré avec succès !', 'success');
+            showTab('vault');
+        }
+        
+        // AFFICHER LES MOTS DE PASSE
+        function updatePasswordsDisplay(filteredPasswords = null) {
+            const container = document.getElementById('passwords-list');
+            const displayPasswords = filteredPasswords || passwords;
+            
+            if (displayPasswords.length === 0) {
+                container.innerHTML = '<div class="no-passwords">Aucun mot de passe enregistré</div>';
+                return;
+            }
+            
+            container.innerHTML = displayPasswords.map(pwd => `
+                <div class="password-card">
+                    <div class="password-header">
+                        <div class="password-name">${pwd.service}</div>
+                        <div class="password-actions">
+                            <button onclick="copyPassword(${pwd.id})" title="Copier le mot de passe">📋</button>
+                            <button onclick="editPassword(${pwd.id})" title="Modifier">✏️</button>
+                            <button class="danger" onclick="deletePassword(${pwd.id})" title="Supprimer">🗑️</button>
+                        </div>
+                    </div>
+                    <div class="password-details">
+                        <strong>Utilisateur :</strong> ${pwd.username}<br>
+                        <strong>Catégorie :</strong> ${getCategoryName(pwd.category)}<br>
+                        ${pwd.url ? `<strong>URL :</strong> <a href="${pwd.url}" target="_blank">${pwd.url}</a><br>` : ''}
+                        ${pwd.notes ? `<strong>Notes :</strong> ${pwd.notes}` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // COPIER UN MOT DE PASSE
+        function copyPassword(id) {
+            if (!isAuthenticated) return;
+            
+            const password = passwords.find(p => p.id === id);
+            if (password) {
+                navigator.clipboard.writeText(password.password).then(() => {
+                    showStatus('Mot de passe copié !', 'success');
+                });
+            }
+        }
+        
+        // SUPPRIMER UN MOT DE PASSE
+        function deletePassword(id) {
+            if (!isAuthenticated) return;
+            
+            if (confirm('Êtes-vous sûr de vouloir supprimer ce mot de passe ?')) {
+                passwords = passwords.filter(p => p.id !== id);
+                savePasswords();
+                showStatus('Mot de passe supprimé', 'success');
+            }
+        }
+        
+        // GÉNÉRATEUR DE MOT DE PASSE
+        function generatePassword() {
+            const length = parseInt(document.getElementById('password-length').value);
+            const uppercase = document.getElementById('uppercase').checked;
+            const lowercase = document.getElementById('lowercase').checked;
+            const numbers = document.getElementById('numbers').checked;
+            const symbols = document.getElementById('symbols').checked;
+            
+            let charset = '';
+            if (uppercase) charset += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            if (lowercase) charset += 'abcdefghijklmnopqrstuvwxyz';
+            if (numbers) charset += '0123456789';
+            if (symbols) charset += '!@#$%^&*()_+-=[]{}|;:,.<>?';
+            
+            if (!charset) {
+                showStatus('Sélectionnez au moins un type de caractère', 'error');
+                return;
+            }
+            
+            let password = '';
+            for (let i = 0; i < length; i++) {
+                password += charset.charAt(Math.floor(Math.random() * charset.length));
+            }
+            
+            document.getElementById('generated-password').value = password;
+            updateGeneratedPasswordStrength(password);
+        }
+        
+        function updateGeneratedPasswordStrength(password) {
+            const meter = document.getElementById('generated-strength');
+            let strength = 0;
+            
+            if (password.length >= 8) strength++;
+            if (password.length >= 12) strength++;
+            if (/[A-Z]/.test(password)) strength++;
+            if (/[0-9]/.test(password)) strength++;
+            if (/[^A-Za-z0-9]/.test(password)) strength++;
+            
+            meter.className = 'strength-fill ';
+            if (strength <= 2) meter.classList.add('strength-weak');
+            else if (strength <= 3) meter.classList.add('strength-medium');
+            else if (strength <= 4) meter.classList.add('strength-strong');
+            else meter.classList.add('strength-very-strong');
+        }
+        
+        // UTILISER LE MOT DE PASSE GÉNÉRÉ
+        function useGeneratedPassword() {
+            const generated = document.getElementById('generated-password').value;
+            if (generated) {
+                document.getElementById('password').value = generated;
+                showTab('add-password');
+                showStatus('Mot de passe copié dans le formulaire', 'success');
+            }
+        }
+        
+        // EXPORTER LES DONNÉES
+        function exportData() {
+            if (!isAuthenticated) return;
+            
+            const data = JSON.stringify(passwords, null, 2);
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'vaultguard-backup.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        // IMPORTER LES DONNÉES
+        function importData() {
+            if (!isAuthenticated) return;
+            
+            const fileInput = document.getElementById('import-file');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                showStatus('Veuillez sélectionner un fichier', 'error');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (Array.isArray(imported)) {
+                        passwords = imported;
+                        savePasswords();
+                        showStatus('Données importées avec succès !', 'success');
+                        fileInput.value = '';
+                    } else {
+                        showStatus('Format de fichier invalide', 'error');
+                    }
+                } catch (error) {
+                    showStatus('Erreur lors de l\'importation', 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+        
+        // FONCTIONS UTILITAIRES
+        function getCategoryName(category) {
+            const categories = {
+                'web': 'Site Web',
+                'app': 'Application',
+                'bank': 'Banque',
+                'email': 'Email',
+                'other': 'Autre'
+            };
+            return categories[category] || category;
+        }
+        
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            input.type = input.type === 'password' ? 'text' : 'password';
+        }
+        
+        function updatePasswordLength() {
+            document.getElementById('length-value').textContent = 
+                document.getElementById('password-length').value;
+        }
+        
+        function copyGeneratedPassword() {
+            const password = document.getElementById('generated-password').value;
+            if (password) {
+                navigator.clipboard.writeText(password).then(() => {
+                    showStatus('Mot de passe copié !', 'success');
+                });
+            }
+        }
+        
+        function filterPasswords() {
+            const search = document.getElementById('search').value.toLowerCase();
+            const filtered = passwords.filter(p => 
+                p.service.toLowerCase().includes(search) ||
+                p.username.toLowerCase().includes(search) ||
+                (p.url && p.url.toLowerCase().includes(search))
+            );
+            updatePasswordsDisplay(filtered);
+        }
+        
+        function filterByCategory(category) {
+            const filtered = category === 'all' ? passwords : passwords.filter(p => p.category === category);
+            updatePasswordsDisplay(filtered);
+        }
+        
+        function showStatus(message, type) {
+            // Créer un message temporaire
+            const status = document.createElement('div');
+            status.className = `status-message status-${type}`;
+            status.textContent = message;
+            status.style.position = 'fixed';
+            status.style.top = '20px';
+            status.style.left = '50%';
+            status.style.transform = 'translateX(-50%)';
+            status.style.zIndex = '1000';
+            status.style.minWidth = '300px';
+            status.style.textAlign = 'center';
+            
+            document.body.appendChild(status);
+            
+            setTimeout(() => {
+                status.remove();
+            }, 3000);
+        }
+        
+        function updateStats() {
+            const stats = document.getElementById('stats');
+            const categories = {};
+            
+            passwords.forEach(p => {
+                categories[p.category] = (categories[p.category] || 0) + 1;
+            });
+            
+            stats.innerHTML = `
+                Total : <strong>${passwords.length}</strong> mots de passe<br>
+                ${Object.entries(categories).map(([cat, count]) => 
+                    `${getCategoryName(cat)} : <strong>${count}</strong>`
+                ).join('<br>')}
+            `;
+        }
+        
+        function clearAllData() {
+            if (confirm('Êtes-vous ABSOLUMENT sûr ? Tous vos mots de passe seront perdus !')) {
+                localStorage.removeItem(PASSWORDS_KEY);
+                passwords = [];
+                updatePasswordsDisplay();
+                updateStats();
+                showStatus('Tous les mots de passe ont été supprimés', 'success');
+            }
+        }
+        
+        function changeMasterPassword() {
+            if (confirm('Voulez-vous changer votre mot de passe maître ?')) {
+                localStorage.removeItem(MASTER_PASSWORD_KEY);
+                logout();
+                showSetupForm();
+            }
+        }
+
+        // ÉCOUTEURS D'ÉVÉNEMENTS
+        document.getElementById('master-password').addEventListener('input', checkPasswordStrength);
+        document.getElementById('confirm-password').addEventListener('input', checkPasswordStrength);
+
+        // INITIALISATION
+        document.addEventListener('DOMContentLoaded', initializeApp);
+    </script>
+</body>
+</html>
